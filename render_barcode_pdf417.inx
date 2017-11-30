@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+	<_name>PDF417</_name>
+	<id>znight.pdf417</id>
+	<dependency type="executable" location="extensions">render_barcode_pdf417.py</dependency>
+	<dependency type="executable" location="extensions">inkex.py</dependency>
+	<param name="text" type="string" _gui-text="Text">Inkscape</param>
+	<param name="ECC" type="int" min="0" max="8" _gui-text="Error Level">1</param>
+	<param name="Cols" type="int" min="1" max="30" _gui-text="Column Size">1</param>
+	<param name="Rows" type="int" min="3" max="90" _gui-text="Row Size">3</param>
+	<param name="size" type="int" min="1" max="1000" _gui-text="Module Size">1</param>
+	<param name="yHeight" type="float" min="3.0" max="10.0" _gui-text="yHeight">3.0</param>
+	<param name="aspect" type="float" min="0.1" max="100.0" _gui-text="Module Aspect">3.0</param>
+	<effect>
+		<object-type>all</object-type>
+		<effects-menu>
+			<submenu _name="Render">
+	        <submenu _name="Barcode" />
+      </submenu>
+		</effects-menu>
+	</effect>
+	<script>
+		<command reldir="extensions" interpreter="python">render_barcode_pdf417.py</command>
+	</script>
+</inkscape-extension>

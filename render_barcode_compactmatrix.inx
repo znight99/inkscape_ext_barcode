@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+	<_name>Compact Matrix</_name>
+	<id>znight.compactmatrix</id>
+	<dependency type="executable" location="extensions">render_barcode_compactmatrix.py</dependency>
+	<dependency type="executable" location="extensions">inkex.py</dependency>
+	<param name="text" type="string" _gui-text="Text">Inkscape</param>
+	<param name="version" type="int" min="1" max="32" _gui-text="Min. Version">1</param>
+	<param name="segments" type="int" min="1" max="32" _gui-text="Segment Num.">1</param>
+	<param name="ECC" type="enum" _gui-text="ECC">
+		<item value="1" default>1</item>
+		<item value="2">2</item>
+		<item value="3">3</item>
+		<item value="4">4</item>
+		<item value="5">5</item>
+		<item value="6">6</item>
+		<item value="7">7</item>
+		<item value="8">8</item>
+	</param>
+
+	<param name="size" type="int" min="1" max="1000" _gui-text="Square Size / mm">1</param>
+	<effect>
+		<object-type>all</object-type>
+		<effects-menu>
+			<submenu _name="Render">
+	        <submenu _name="Barcode" />
+      </submenu>
+		</effects-menu>
+	</effect>
+	<script>
+		<command reldir="extensions" interpreter="python">render_barcode_compactmatrix.py</command>
+	</script>
+</inkscape-extension>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+	<_name>Aztec</_name>
+	<id>znight.aztec</id>
+	<dependency type="executable" location="extensions">render_barcode_aztec.py</dependency>
+	<dependency type="executable" location="extensions">inkex.py</dependency>
+	<param name="text" type="string" _gui-text="Text">Inkscape</param>
+	<param name="ECC" type="int" min="0" max="100" _gui-text="Error Level">33</param>
+
+	<param name="size" type="int" min="1" max="1000" _gui-text="Square Size / mm">1</param>
+	<effect>
+		<object-type>all</object-type>
+		<effects-menu>
+			<submenu _name="Render">
+	        <submenu _name="Barcode" />
+      </submenu>
+		</effects-menu>
+	</effect>
+	<script>
+		<command reldir="extensions" interpreter="python">render_barcode_aztec.py</command>
+	</script>
+</inkscape-extension>
