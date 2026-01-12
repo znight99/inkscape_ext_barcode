@@ -1,5 +1,5 @@
 
-import BarcodeRow
+from . import BarcodeRow
 
 
 #
@@ -59,6 +59,6 @@ class BarcodeMatrix :
     matrixOut = [[]*(self.width * xScale)]*(self.height * yScale)
     yMax = self.height * yScale
     for i in range (0, yMax):
-      matrixOut[yMax - i - 1] = self.matrix[i / yScale].getScaledRow(xScale)
+      matrixOut[yMax - i - 1] = self.matrix[i // yScale].getScaledRow(xScale)
     return matrixOut;
 

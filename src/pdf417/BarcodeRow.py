@@ -59,5 +59,5 @@ class BarcodeRow :
   def getScaledRow(self,scale) :
     output = [0]*(len(self.row) * scale)
     for i in range(0,len(output)):
-      output[i] = self.row[i / scale]
+      output[i] = self.row[i // scale]
     return output

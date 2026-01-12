@@ -1,8 +1,8 @@
 
-import Compaction
-import PDF417ErrorCorrection
-import PDF417HighLevelEncoder
-import BarcodeMatrix
+from . import Compaction
+from . import PDF417ErrorCorrection
+from . import PDF417HighLevelEncoder
+from . import BarcodeMatrix
 
 START_PATTERN = 0x1fea8
 STOP_PATTERN = 0x3fa29
@@ -507,7 +507,7 @@ class PDF417 :
 #   * @return the number of rows in the symbol (r)
 #   */
   def calculateNumberOfRows(self, m, k, c) :
-    r = ((m + 1 + k) / c) + 1
+    r = ((m + 1 + k) // c) + 1
     if (c * r >= (m + 1 + k + c)) :
       r-=1
     return r
@@ -552,14 +552,14 @@ class PDF417 :
       self.encodeChar(START_PATTERN, 17, logic.getCurrentRow())
 #
       if (cluster == 0) :
-        left = (30 * (y / 3)) + ((r - 1) / 3)
-        right = (30 * (y / 3)) + (c - 1)
+        left = (30 * (y // 3)) + ((r - 1) // 3)
+        right = (30 * (y // 3)) + (c - 1)
       elif (cluster == 1) :
-        left = (30 * (y / 3)) + (errorCorrectionLevel * 3) + ((r - 1) % 3)
-        right = (30 * (y / 3)) + ((r - 1) / 3)
+        left = (30 * (y // 3)) + (errorCorrectionLevel * 3) + ((r - 1) % 3)
+        right = (30 * (y // 3)) + ((r - 1) // 3)
       else :
-        left = (30 * (y / 3)) + (c - 1)
-        right = (30 * (y / 3)) + (errorCorrectionLevel * 3) + ((r - 1) % 3)
+        left = (30 * (y // 3)) + (c - 1)
+        right = (30 * (y // 3)) + (errorCorrectionLevel * 3) + ((r - 1) % 3)
 #
       pattern = CODEWORD_TABLE[cluster][left];
       self.encodeChar(pattern, 17, logic.getCurrentRow())
@@ -630,6 +630,8 @@ class PDF417 :
     dimension = []
     for cols in range( self.minCols, self.maxCols+1) :
       rows = self.calculateNumberOfRows(sourceCodeWords, errorCorrectionCodeWords, cols)
+      #import inkex
+      #inkex.errormsg(rows)
       if (rows < self.minRows) :
         break
       if (rows > self.maxRows):

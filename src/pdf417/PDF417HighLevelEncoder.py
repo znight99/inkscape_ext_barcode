@@ -1,5 +1,5 @@
 
-import Compaction
+from . import Compaction
 
 TEXT_COMPACTION = 0
 BYTE_COMPACTION = 1
@@ -168,7 +168,7 @@ def encodeText(msg, startpos, count, sb, initialSubmode):
       else:
         tmp+=[29] # //ps
         tmp+=PUNCTUATION[ch];
-    if submode==SUBMODE_LOWER:
+    elif submode==SUBMODE_LOWER:
       if (isAlphaLower(ch)) :
         if (ch == ' '):
           tmp+=[26] # //space
@@ -177,7 +177,7 @@ def encodeText(msg, startpos, count, sb, initialSubmode):
       else:
         if (isAlphaUpper(ch)) :
           tmp+=[ 27] #//as
-          tmp+=  (ord(ch) - 65)
+          tmp+=  [ord(ch) - 65]
 #              //space cannot happen here, it is also in "Lower"
         elif (isMixed(ch)):
           submode = SUBMODE_MIXED
@@ -186,7 +186,7 @@ def encodeText(msg, startpos, count, sb, initialSubmode):
         else :
           tmp+=[29] # //ps
           tmp+=PUNCTUATION[ord(ch)];
-    if submode==SUBMODE_MIXED:
+    elif submode==SUBMODE_MIXED:
       if (isMixed(ch)) :
         tmp+=[ MIXED[ord(ch)] ]
       else :
@@ -264,7 +264,7 @@ def encodeBinary( bytes, startpos, count, startmode,sb):
         t += bytes[idx + i] & 0xff
       for i in range(0, 5):
         chars[i] = (t % 900);
-        t /= 900;
+        t //= 900;
       for i in range(len(chars) - 1,-1,-1):
         sb+=[chars[i]]
       idx += 6
@@ -286,7 +286,7 @@ def encodeNumeric( msg,  startpos,  count, sb) :
     bigint =int(part);
     while True:
       tmp+=[ bigint%num900];
-      bigint = bigint/num900;
+      bigint = bigint//num900;
       if (bigint==0):
         break
 #
@@ -314,7 +314,7 @@ def isPunctuation( ch) :
   return PUNCTUATION[ord(ch)] != -1
 #
 def isText(ch) :
-  return ch == '\t' or ch == '\n' or ch == '\r' or (ch >= 32 and ch <= 126)
+  return ch == '\t' or ch == '\n' or ch == '\r' or (ch >= chr(32) and ch <= chr(126))
 
 #
 #  /**
@@ -416,7 +416,7 @@ def determineConsecutiveBinaryCount( msg, bytes,  startpos):
 #      sb.append((char) eci);
 #    } else if (eci < 810900) {
 #      sb.append((char) ECI_GENERAL_PURPOSE);
-#      sb.append((char) (eci / 900 - 1));
+#      sb.append((char) (eci // 900 - 1));
 #      sb.append((char) (eci % 900));
 #    } else if (eci < 811800) {
 #      sb.append((char) ECI_USER_DEFINED);
