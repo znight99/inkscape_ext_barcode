@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import util
-from constants import *
-import rs
+from . import util
+from .constants import *
+from . import rs
 
 def make(data=None, **kwargs):
     hx = CompactMatrix(**kwargs)
@@ -73,11 +73,11 @@ class CompactMatrix:
         m=self.modules_height=15*self.version+3
         self.modules = [None] * self.modules_height
 
-        for row in xrange(self.modules_height):
+        for row in range(self.modules_height):
 
             self.modules[row] = [None] * self.modules_width
 
-            for col in xrange(self.modules_width):
+            for col in range(self.modules_width):
               if ((col-START_WIDTH)%34==0 and (row>=3 and row<m-3)) or col>=START_WIDTH and col<n-TERM_WIDTH and (
                   row==0 or row==2 or row==m-1 or row==m-3 or (row==1 or row==m-2) and (col-START_WIDTH)%2==0):
                 self.modules[row][col]=True
@@ -174,7 +174,7 @@ class CompactMatrix:
         min_lost_point = 0
         pattern = 0
 
-        for i in xrange(4):
+        for i in range(4):
             self.makeImpl(True, i)
 
             lost_point = util.lost_point(self.modules,self.version,self.segments)

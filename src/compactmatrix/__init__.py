@@ -1,4 +1,4 @@
-from compactmatrix.main import CompactMatrix, make
+from .main import CompactMatrix, make
 
 def run_example(data="http://www.imu.edu.cn", *args, **kwargs):
     """
