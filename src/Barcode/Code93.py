@@ -19,7 +19,7 @@
 Python barcode renderer for Code93 barcodes. Designed for use with Inkscape.
 """
 
-from Base import Barcode
+from .Base import Barcode
 
 chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%'
 encode = list(chars)
@@ -97,25 +97,25 @@ class Code93(Barcode):
     def encodeAscii(self, text):
         result = []
         for char in text:
-            if map.has_key(char):
+            if char in map:
                 result.append(char)
-            elif mapA.has_key(char):
+            elif char in mapA:
                 result.append('(%)')
                 result.append(mapA[char])
-            elif mapB.has_key(char):
+            elif char in mapB:
                 result.append('($)')
                 result.append(mapB[char])
-            elif mapC.has_key(char):
+            elif char in mapC:
                 result.append('(/)')
                 result.append(mapC[char])
-            elif mapD.has_key(char):
+            elif char in mapD:
                 result.append('(+)')
                 result.append(mapD[char])
                 
         return result
 
     def encode93(self, char):
-        if map.has_key(char):
+        if char in map:
             return encoding[map[char]]
         return ''
 

@@ -20,8 +20,8 @@
 Python barcode renderer for EAN5 barcodes. Designed for use with Inkscape.
 """
 
-from Base import RIGHT
-from BaseEan import EanBarcode
+from .Base import RIGHT
+from .BaseEan import EanBarcode
 
 FAMS  = [ '11000','10100','10010','10001','01100','00110','00011','01010','01001','00101' ]
 START = '01011'

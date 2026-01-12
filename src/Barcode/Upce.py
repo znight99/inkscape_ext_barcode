@@ -19,7 +19,7 @@
 Python barcode renderer for UPCE barcodes. Designed for use with Inkscape.
 """
 
-from BaseEan import EanBarcode
+from .BaseEan import EanBarcode
 import sys
 
 # This is almost exactly the same as the standard FAMILIES

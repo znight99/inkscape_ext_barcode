@@ -1,5 +1,5 @@
 
-from Base import Barcode
+from .Base import Barcode
 
 START_END_CHARS = ['A', 'B', 'C', 'D'];
 ALT_START_END_CHARS = ['T', 'N', '*', 'E'];
@@ -47,7 +47,7 @@ class Coda(Barcode):
         char='C'
       if char=='E':
         char='D'
-      if not encoding.has_key(char):
+      if not char in encoding:
         char = '-';
 
       result = result + encoding[char]+'0';

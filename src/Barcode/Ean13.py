@@ -21,7 +21,7 @@
 Python barcode renderer for EAN13 barcodes. Designed for use with Inkscape.
 """
 
-from BaseEan import EanBarcode
+from .BaseEan import EanBarcode
 
 class Ean13(EanBarcode):
     """Provide an Ean13 barcode generator"""

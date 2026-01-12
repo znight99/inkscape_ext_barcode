@@ -2,7 +2,7 @@
 Python barcode renderer for RSS-14 barcodes. Designed for use with Inkscape.
 """
 
-from Base import Barcode
+from .Base import Barcode
 
 gs=[
   [0,183063,17,9,6,3,28],
@@ -42,10 +42,10 @@ def combins(n,m):
     s*=i
     i-=1
     if j<=mind:
-      s/=j
+      s//=j
       j+=1
   while j<=mind:
-    s/=j
+    s//=j
     j+=1
   return s
 
@@ -85,7 +85,7 @@ class RSS14l(Barcode):
       for g in gs:
         if val>=g[0] and val<=g[1]:
           break
-      vo=(val-g[0])/g[6]
+      vo=(val-g[0])//g[6]
       ve=(val-g[0])%g[6]
       wo=self.getRSSwidths(vo,g[2],7,g[4],1)
       we=self.getRSSwidths(ve,g[3],7,g[5],0)
@@ -131,7 +131,7 @@ class RSS14l(Barcode):
       self.label='(01)'+text+self.getChecksum(text)
       v=int(text)
       #v+=10000000000000
-      lpair=v/2013571
+      lpair=v//2013571
       rpair=v%2013571
       wsl=self.getWidths(lpair)
       wsr=self.getWidths(rpair)
@@ -139,7 +139,7 @@ class RSS14l(Barcode):
       cs=self.checksum(wsl,csw[0])
       cs+=self.checksum(wsr,csw[1])
       cs%=89
-      fpo=self.getRSSwidths(cssq[cs]/21,8,6,3,1)
+      fpo=self.getRSSwidths(cssq[cs]//21,8,6,3,1)
       fpe=self.getRSSwidths(cssq[cs]%21,8,6,3,1)
       
       fp=['1']*14
@@ -163,4 +163,4 @@ class RSS14l(Barcode):
 if __name__ == '__main__':
   r=RSS14l({ 'text':'1234567890|231231312312312|77'})
   r.encode('9876543210')
-  print r.r
+  print (r.r)

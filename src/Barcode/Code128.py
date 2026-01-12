@@ -23,7 +23,7 @@
 Python barcode renderer for Code128/EAN128 barcodes. Designed for use with Inkscape.
 """
 
-from Base import Barcode
+from .Base import Barcode
 import math
 import re
 
@@ -85,7 +85,7 @@ charB = mapExtra(charAB, range(96, 128)) # Offset -32
 charB.append(FNC4)
 charB.append(CODEA)
 charB.append(FNC1)
-charC=range(100)
+charC=list(range(100))
 charC.append(CODEB)
 charC.append(CODEA)
 charC.append(FNC1)
@@ -290,7 +290,7 @@ class Code128(Barcode):
 
 if __name__ == '__main__':
   r=Code128({ 'text':'1234567890'})
-  print r.process(u'A\x04'+FNC1+u'123b123456abcd@\x03\x80\x81\xaa\xc8\xc90234')
+  print (r.process(u'A\x04'+FNC1+u'123b123456abcd@\x03\x80\x81\xaa\xc8\xc90234'))
   
   s=r.preprocess(u'A\x04'+FNC1+u'123b123456abcd@\x03\x80\x81\xaa\xc8\xc90234')
   t=''
@@ -307,6 +307,6 @@ if __name__ == '__main__':
       t+='['+hex(ord(c))[2:]+']'
     else:
       t+=c
-  print t
+  print (t)
   
          

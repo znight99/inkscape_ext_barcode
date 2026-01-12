@@ -164,13 +164,14 @@ class Barcode(object):
         name  = 'barcode'
 
         index = 0
-        while (doc_ids.has_key(name)):
+        while (name in doc_ids):
             index += 1
             name = 'barcode%d' % index
         return name
 
     def generate(self):
         """Generate the actual svg from the coding"""
+        
         svg_uri = u'http://www.w3.org/2000/svg'
         if self.string == 'ERROR':
             return None,0,0
@@ -258,7 +259,6 @@ class Barcode(object):
                 tpath.set('transform','translate(%f,%f) scale(%f)'%(xi+(lb+fb)/2.0-tl/2.0+sx*(i-1)-(cw%2)*1,self.labelOffset()+float(self.height) ,self.fontSize()/12.0))
             tpath.set('d',ocrfont[ord(c)-33])
  
-
         return barcode,(barwidth)*self.scale,self.labelOffset()+float(self.height)
 
     def graphicalArray(self, code):

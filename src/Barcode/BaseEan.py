@@ -19,7 +19,7 @@
 Some basic common code shared between EAN and UCP generators.
 """
 
-from Base import Barcode,JUSTIFIED
+from .Base import Barcode,JUSTIFIED
 import sys
 
 MAPPING = [
@@ -56,8 +56,8 @@ class EanBarcode(Barcode):
         
         if s1 is not None:
           if len(self.addon)==2:
-            import Ean2
-            r=Ean2.Ean2( {  'text':self.addon,
+            from .Ean2 import Ean2
+            r=Ean2( {  'text':self.addon,
               'height':self.height,
               'document':self.document,
               'x':self.x+cw*self.scale,
@@ -69,8 +69,8 @@ class EanBarcode(Barcode):
             s2,w2,h2=r.generate()
             return [s1,s2],w,h
           elif len(self.addon)==5:
-            import Ean5
-            r=Ean5.Ean5( {  'text':self.addon,
+            from .Ean5 import Ean5
+            r=Ean5( {  'text':self.addon,
               'height':self.height,
               'document':self.document,
               'x':self.x+cw*self.scale,

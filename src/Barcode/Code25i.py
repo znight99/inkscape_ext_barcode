@@ -20,7 +20,7 @@ Generate barcodes for Code25-interleaved 2 of 5, for Inkscape.
 """
 from lxml import etree
 
-from Base import Barcode
+from .Base import Barcode
 import sys
 
 (NARROW_WHITE, NARROW_BLACK, WIDE_WHITE, WIDE_BLACK) = range(4)
@@ -68,7 +68,7 @@ class Code25i(Barcode):
         self.label = number
 
         # Number is encoded by pairs of 2 figures
-        size = len(number) / 2;
+        size = len(number) // 2;
         encoded = start_code;
         for i in range(size):
             # First in the pair is encoded in black (1), second in white (0)

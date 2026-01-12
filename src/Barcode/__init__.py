@@ -39,19 +39,20 @@ For supported barcodes see Barcode module directory.
 
 import sys
 
-def getBarcode(code, **kwargs):
+
+
+def getBarcode(code, **kw):
     """Gets a barcode from a list of available barcode formats"""
     if not code:
-        return sys.stderr.write("No barcode format given!\n")
-
+        return NoBarcode("No barcode format given.")
 
     code = str(code).replace('-', '').strip()
+    module = 'barcode.' + code
+    lst = ['barcode']
     try:
-        barcode = getattr(__import__('Barcode.'+code, fromlist=['Barcode']), code)
-        return barcode(kwargs)
+        return getattr(__import__(module, fromlist=lst), code)(kw)
     except ImportError:
         sys.stderr.write("Invalid type of barcode: %s\n" % code)
     except AttributeError:
         raise
         sys.stderr.write("Barcode module is missing the barcode class: %s\n" % code)
-

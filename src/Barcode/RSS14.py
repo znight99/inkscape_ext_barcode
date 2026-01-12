@@ -2,7 +2,7 @@
 Python barcode renderer for RSS-14 barcodes. Designed for use with Inkscape.
 """
 
-from Base import Barcode
+from .Base import Barcode
 
 gs16=[
   [0, 160,12,4,8,1,1 ],
@@ -52,10 +52,10 @@ def combins(n,m):
     s*=i
     i-=1
     if j<=mind:
-      s/=j
+      s//=j
       j+=1
   while j<=mind:
-    s/=j
+    s//=j
     j+=1
   return s
 
@@ -100,11 +100,11 @@ class RSS14(Barcode):
         if val>=g[0] and val<=g[1]:
           break
       if outer:
-        vo=(val-g[0])/g[6]
+        vo=(val-g[0])//g[6]
         ve=(val-g[0])%g[6]
       else:
         vo=(val-g[0])%g[6]
-        ve=(val-g[0])/g[6]
+        ve=(val-g[0])//g[6]
       wo=self.getRSSwidths(vo,g[2],4,g[4],0 if not outer else 1)
       we=self.getRSSwidths(ve,g[3],4,g[5],0 if outer else 1)
       ws=[0]*8
@@ -147,11 +147,11 @@ class RSS14(Barcode):
       self.label='(01)'+text+self.getChecksum(text)
       v=int(text)
       #v+=10000000000000
-      lpair=v/4537077
+      lpair=v//4537077
       rpair=v%4537077
-      clout=lpair/1597
+      clout=lpair//1597
       clin=lpair%1597
-      crout=rpair/1597
+      crout=rpair//1597
       crin=rpair%1597
       wslo=self.getWidths(clout,True)
       wsli=self.getWidths(clin,False)
@@ -167,7 +167,7 @@ class RSS14(Barcode):
         cs+=1
       if cs>=72:
         cs+=1
-      lcs=cs/9
+      lcs=cs//9
       rcs=cs%9
       
       lfp=list(csws[lcs])

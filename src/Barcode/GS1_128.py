@@ -2,8 +2,8 @@
 Python barcode renderer for GS1-128 barcodes. Designed for use with Inkscape.
 """
 
-from Code128 import Code128,FNC1
-from Base import Barcode
+from .Code128 import Code128,FNC1
+from .Base import Barcode
 
 fixai={
   '00':18,
@@ -187,25 +187,25 @@ class GS1_128(Code128):
           if p>0:
             ai=s[0:p]
           else:
-            if fixai.has_key(s[0:2]):
+            if s[0:2] in fixai:
               ai=s[0:2]
-            elif fixai.has_key(s[0:3]):
+            elif s[0:3]in fixai:
               ai=s[0:3]
-            elif fixai.has_key(s[0:4]):
+            elif s[0:4] in fixai:
               ai=s[0:4]
             else:
               ai=s[0:3]
             p=len(ai)
-          if not fixai.has_key(ai) and fixai.has_key(ai[0:-1]):
+          if not ai in fixai and s[0:-1] in fixai:
             eai=ai
             ai=ai[0:-1]
-          elif fixai.has_key(ai) and ai in extai and len(ai)<len(s):
+          elif ai in fixai and ai in extai and len(ai)<len(s):
             eai=ai+s[len(ai)]
             p+=1
           else:
             eai=ai
           v=s[p:]
-          if fixai.has_key(ai) and fixai[ai]>=0:
+          if ai in fixai and fixai[ai]>=0:
             if len(v)<fixai[ai]:
               v='0'*(fixai[ai]-len(v))+v
             else:
@@ -213,7 +213,7 @@ class GS1_128(Code128):
           self.label+='('+eai+')'+v
           
           block=s
-          if i<len(blocks)-1 and (not fixai.has_key(ai) or fixai[ai]<0):
+          if i<len(blocks)-1 and (not ai in fixai or fixai[ai]<0):
             block+=FNC1
           t+=block
         #import sys
@@ -226,4 +226,4 @@ class GS1_128(Code128):
 
 if __name__ == '__main__':
   r=GS1_128({ 'text':'1234567890|231231312312312|77'})
-  print r.encode(r.label)
+  print (r.encode(r.label))
