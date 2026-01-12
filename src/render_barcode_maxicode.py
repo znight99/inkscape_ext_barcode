@@ -6,7 +6,8 @@ from zint
 
 '''
 
-import inkex, simplestyle
+import inkex
+from lxml import etree
 
 #import qrcode
 
@@ -44,10 +45,10 @@ def draw_SVG_hexagon(x,y,size, parent):
             }
                 
     attribs = {
-        'style'     :simplestyle.formatStyle(style),
+        'style'     :str(inkex.Style(style)),
           'points': ss
             }
-    circ = inkex.etree.SubElement(parent, inkex.addNS('polygon','svg'), attribs )
+    circ = etree.SubElement(parent, inkex.addNS('polygon','svg'), attribs )
     
 #turn a 2D array of 1's and 0's into a set of black squares
 def render_maxicode( q, size, parent):
@@ -59,12 +60,12 @@ def render_maxicode( q, size, parent):
             }
                 
        attribs = {
-        'style'     :simplestyle.formatStyle(style),
+        'style'     :str(inkex.Style(style)),
           'cx': str(14.5*size),
             'cy': str(size*16.5*0.8660254),
               'r':str(size*0.82*(i*2+1)),
             }
-       circ = inkex.etree.SubElement(parent, inkex.addNS('circle','svg'), attribs )
+       circ = etree.SubElement(parent, inkex.addNS('circle','svg'), attribs )
    
      '''
      bs=0.78
@@ -74,13 +75,13 @@ def render_maxicode( q, size, parent):
             }
                 
        attribs = {
-        'style'     :simplestyle.formatStyle(style),
+        'style'     :str(inkex.Style(style)),
           'd': 'M '+str(size*(14.5-bs*(i*2)-0.57735))+','+str(size*16.5*0.866)+' a '+str(size*(bs*(i*2)+0.57735))+','+str(size*(bs*(i*2)+0.57735))+',0,0,1,'+str(size*(bs*(i*2)*2+0.57735*2))+','+str(0)
             +' a '+str(size*(bs*(i*2)+0.57735))+','+str(size*(bs*(i*2)+0.57735))+',0,0,1,'+str(-size*(bs*(i*2)*2+0.57735*2))+','+str(0)+' z'
             +' m '+str(size*(-bs))+','+str(0)+' a '+str(size*(bs*(i*2+1)+0.57735))+','+str(size*(bs*(i*2+1)+0.57735))+',0,1,0,'+str(size*(bs*(i*2+1)*2+0.57735*2))+','+str(0)
             +' a '+str(size*(bs*(i*2+1)+0.57735))+','+str(size*(bs*(i*2+1)+0.57735))+',0,1,0,'+str(-size*(bs*(i*2+1)*2+0.57735*2))+','+str(0)+' z',
             }
-       circ = inkex.etree.SubElement(parent, inkex.addNS('path','svg'), attribs )
+       circ = etree.SubElement(parent, inkex.addNS('path','svg'), attribs )
      
      for y in range(len(q)):     #loop over all the modules in the datamatrix
        for x in range(len(q[y])-(y%2)):
@@ -304,9 +305,9 @@ def maxi_do_secondary_chk_odd( ecclen ):
 
   for j in range( datalen):
     if (j & 1) : #// odd
-      data[(j-1)/2] = maxi_codeword[j + 20];
+      data[(j-1)//2] = maxi_codeword[j + 20];
 
-  rs_encode(datalen/2, data, results);
+  rs_encode(datalen//2, data, results);
 
   for  j in range(ecclen):
     maxi_codeword[ datalen + (2 *j) + 1 + 20 ] = results[ecclen - 1 - j];
@@ -326,9 +327,9 @@ def maxi_do_secondary_chk_even( ecclen ):
 
   for  j in range( datalen + 1):
     if (not (j & 1)):# // even
-      data[j/2] = maxi_codeword[j + 20];
+      data[j//2] = maxi_codeword[j + 20];
 
-  rs_encode(datalen/2, data, results);
+  rs_encode(datalen//2, data, results);
 
   for j in range(ecclen):
     maxi_codeword[ datalen + (2 *j) + 20] = results[ecclen - 1 - j];
@@ -680,8 +681,8 @@ def maxicode( source,  mode=4):
   else:
     eclen = 40; # // 84 data codewords,  40 error corrections
 
-  maxi_do_secondary_chk_even(eclen/2);  #// do error correction of even
-  maxi_do_secondary_chk_odd(eclen/2);   #// do error correction of odd
+  maxi_do_secondary_chk_even(eclen//2);  #// do error correction of even
+  maxi_do_secondary_chk_odd(eclen//2);   #// do error correction of odd
 
   #print maxi_codeword
   #/* Copy data into symbol grid */
@@ -690,7 +691,7 @@ def maxicode( source,  mode=4):
   bit_pattern=[0]*7
   for i in range( 33) :
     for j in range(30) :
-      block = (MaxiGrid[(i * 30) + j] + 5) / 6;
+      block = (MaxiGrid[(i * 30) + j] + 5) // 6;
       bit = (MaxiGrid[(i * 30) + j] + 5) % 6;
 
       if(block != 0) :
@@ -726,18 +727,20 @@ class MaxiCode(inkex.Effect):
     def __init__(self):
         inkex.Effect.__init__(self)
         
+    def add_arguments(self, pars):
         #PARSE OPTIONS
-        self.OptionParser.add_option("--text",
-            action="store", type="string",
+        pars.add_argument("--text",
+            type=str,
             dest="TEXT", default='Inkscape')
 
-        self.OptionParser.add_option("--MODE",
-            action="store", type="string",
+        pars.add_argument("--MODE",
+            type=int,
             dest="MODE", default='4')
  
-        self.OptionParser.add_option("--size",
-            action="store", type="int",
+        pars.add_argument("--size",
+            type=int,
             dest="SIZE", default=1)
+        pars.add_argument("--encoding", default="utf-8")
             
     def effect(self):
         
@@ -746,14 +749,23 @@ class MaxiCode(inkex.Effect):
         if so.TEXT == '':  #abort if converting blank text
             inkex.errormsg(_('Please enter an input string'))
         else:
-            size=so.SIZE*self.unittouu('0.02in')/1.1547*2
+            # Python 2 and 3 compatibility.
+            if sys.version_info >= (3, 0, 0):
+                # for Python 3 ugly hack to represent bytes as str for Python2 compatibility
+                text_str = str(so.TEXT)
+                text_bytes = bytes(so.TEXT, so.encoding).decode("latin-1")
+            else:
+                text_str = str(so.TEXT).decode(sys.getfilesystemencoding())
+                text_bytes = text_str.encode(so.encoding)
+                
+            size=so.SIZE*self.svg.unittouu('0.02in')/1.1547*2
             #INKSCAPE GROUP TO CONTAIN EVERYTHING
                        
             #q=[[1 for i in range(30)] for i in range(33)]
-            q=maxicode(unicode(so.TEXT,'mbcs').encode('utf-8') if sys.getfilesystemencoding()=='mbcs' else so.TEXT,int(so.MODE))
+            q=maxicode(text_bytes,so.MODE)
             
             if (q!=None):
-              (x,y) = self.view_center   #Put in in the centre of the current view
+              (x,y) = self.svg.namedview.center   #Put in in the centre of the current view
               
               y-=len(q)/2.0*size*0.8660254
               x-=len(q[0])/2.0*size
@@ -762,11 +774,11 @@ class MaxiCode(inkex.Effect):
               grp_name = 'MaxiCode'
               grp_attribs = {inkex.addNS('label','inkscape'):grp_name,
                              'transform':grp_transform }
-              grp = inkex.etree.SubElement(self.current_layer, 'g', grp_attribs)#the group to put everything in
+              grp = etree.SubElement(self.svg.get_current_layer(), 'g', grp_attribs)#the group to put everything in
               render_maxicode( q,size, grp )    # generate the SVG elements
             
 if __name__ == '__main__':
     e = MaxiCode()
-    e.affect()
+    e.run()
 
 # vim: expandtab shiftwidth=4 tabstop=8 softtabstop=4 encoding=utf-8 textwidth=99

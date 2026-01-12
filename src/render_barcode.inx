@@ -2,8 +2,7 @@
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
   <_name>Classic</_name>
   <id>org.inkscape.render.barcode</id>
-  <dependency type="executable" location="extensions">inkex.py</dependency>
-  <dependency type="executable" location="extensions">render_barcode.py</dependency>
+  
   <param name="type" type="enum" _gui-text="Barcode Type:">
     <item value="Ean8">EAN8</item>
     <item value="Ean13">EAN13</item>

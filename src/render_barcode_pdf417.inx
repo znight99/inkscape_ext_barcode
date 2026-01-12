@@ -2,15 +2,34 @@
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 	<_name>PDF417</_name>
 	<id>znight.pdf417</id>
-	<dependency type="executable" location="extensions">render_barcode_pdf417.py</dependency>
-	<dependency type="executable" location="extensions">inkex.py</dependency>
+
 	<param name="text" type="string" _gui-text="Text">Inkscape</param>
 	<param name="ECC" type="int" min="0" max="8" _gui-text="Error Level">1</param>
 	<param name="Cols" type="int" min="1" max="30" _gui-text="Column Size">1</param>
 	<param name="Rows" type="int" min="3" max="90" _gui-text="Row Size">3</param>
 	<param name="size" type="int" min="1" max="1000" _gui-text="Module Size">1</param>
-	<param name="yHeight" type="float" min="3.0" max="10.0" _gui-text="yHeight">3.0</param>
+	<param name="yHeight" type="float" min="2.0" max="10.0" _gui-text="yHeight">3.0</param>
 	<param name="aspect" type="float" min="0.1" max="100.0" _gui-text="Module Aspect">3.0</param>
+
+  <param name="encoding" type="optiongroup" appearance="combo" gui-text="Character encoding:">
+    <option translatable="no" value="latin-1">Latin 1</option>
+    <option translatable="no" value="utf-8">UTF-8</option>
+    <option translatable="no" value="gb18030">gb18030</option>
+  </param>
+  <param name="drawtype" type="optiongroup" appearance="combo" gui-text="Drawing type:">
+    <option value="neutral">Smooth: neutral</option>
+    <option value="greedy">Smooth: greedy</option>
+    <option value="proud">Smooth: proud</option>
+    <option value="simple">Path: simple</option>
+    <option value="circle">Path: circle</option>
+    <option value="pathcustom">Path: custom</option>
+    <option value="symbol">Symbol</option>
+    <option value="obsolete">Square sharp: obsolete</option>
+  </param>
+  <param name="smoothval" type="float" min="0.01" max="1.0" precision="2" gui-text="Smooth square value (0-1):">0.2</param>
+  <label xml:space="preserve">For Path: custom set the path in relative coordinates (0,0)=(left,up) square size 1.0 </label>
+  <param name="symbolid" type="string" gui-text="Path string (Path: custom) or symbol #url:">m 0,1 l 0.5,-1 l 0.5,1</param>
+
 	<effect>
 		<object-type>all</object-type>
 		<effects-menu>

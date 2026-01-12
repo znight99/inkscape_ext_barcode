@@ -4,7 +4,9 @@
 Created by znight@yeah.net
 '''
 
-import inkex, simplestyle
+import inkex
+from lxml import etree
+from barcode.GridDrawer import GridDrawer
 
 import hanxin
 
@@ -15,67 +17,46 @@ import gettext
 _ = gettext.gettext
     
 
-#RENDERING ROUTINES ==================================================
-#   Take the array of 1's and 0's and render as a series of black
-#   squares. A binary 1 is a filled square
-#=====================================================================
-
-#SVG element generation routine
-def draw_SVG_square((w,h), (x,y), c,parent):
-    cc=['white','black','grey']
-    style = {   'stroke'        : 'none',
-                'stroke-width'  : '0',
-                'fill'          : cc[c],
-                'fill-opacity': str(0.5 if c==2 else 1.0)
-            }
-                
-    attribs = {
-        'style'     :simplestyle.formatStyle(style),
-        'height'    : str(h),
-        'width'     : str(w),
-        'x'         : str(x),
-        'y'         : str(y)
-            }
-    circ = inkex.etree.SubElement(parent, inkex.addNS('rect','svg'), attribs )
-    
-#turn a 2D array of 1's and 0's into a set of black squares
-def render_code( q, size, cx,cy,parent):
-                 
-     for y in range(len(q)):    
-       for x in range(len(q[y])):
-           if q[y][x]==None:
-             draw_SVG_square((size*1.1,size*1.1), (x*size+cx ,y*size+cy), 2,parent)
-           elif q[y][x]: #A binary 1 is a filled square
-             draw_SVG_square((size*1.1,size*1.1), (x*size+cx ,y*size+cy), 1,parent)
-    
+   
 class Hanxin(inkex.Effect):
     def __init__(self):
         inkex.Effect.__init__(self)
         
+    def add_arguments(self, pars):
         #PARSE OPTIONS
-        self.OptionParser.add_option("--text",
-            action="store", type="string",
+        pars.add_argument("--text",
+            type=str,
             dest="TEXT", default='Inkscape')
 
-        self.OptionParser.add_option("--version",
-            action="store", type="int",
+        pars.add_argument("--version",
+            type=int,
             dest="VERSION", default=1)
             
-        self.OptionParser.add_option("--ECC",
-            action="store", type="string",
+        pars.add_argument("--ECC",
+            type=str,
             dest="ECC", default='L1')
  
-        self.OptionParser.add_option("--size",
-            action="store", type="int",
-            dest="SIZE", default=1)
+        pars.add_argument("--size", type=float, default=1.0)
+        pars.add_argument("--drawtype", default="greedy")
+        pars.add_argument("--smoothval", type=float, default=0.2)
+        pars.add_argument("--symbolid", default='')
             
     def effect(self):
         
         so = self.options
         
+        so.encoding='utf-8'
         if so.TEXT == '':  #abort if converting blank text
             inkex.errormsg(_('Please enter an input string'))
         else:
+            # Python 2 and 3 compatibility.
+            if sys.version_info >= (3, 0, 0):
+                # for Python 3 ugly hack to represent bytes as str for Python2 compatibility
+                text_str = str(so.TEXT)
+                text_bytes = bytes(so.TEXT, so.encoding).decode("latin-1")
+            else:
+                text_str = str(so.TEXT).decode(sys.getfilesystemencoding())
+                text_bytes = text_str.encode(so.encoding)
         
             #INKSCAPE GROUP TO CONTAIN EVERYTHING
                         
@@ -91,13 +72,13 @@ class Hanxin(inkex.Effect):
             else :
               ec=hanxin.constants.ERROR_CORRECT_L1
             q= hanxin.main.Hanxin(version=ver, error_correction=ec)
-            q.add_data(unicode(so.TEXT,'mbcs').encode('utf-8') if sys.getfilesystemencoding()=='mbcs' else so.TEXT)
+            q.add_data(text_bytes)
             q.make()
             
-            size=so.SIZE*self.unittouu('1mm')
+            size=so.size*self.svg.unittouu('1mm')
             m=q.modules
             if m and len(m)>0 and len(m[0])>0:
-              (x,y) = self.view_center   #Put in in the centre of the current view
+              (x,y) = self.svg.namedview.center   #Put in in the centre of the current view
               y-=len(m)/2.0*size
               x-=len(m[0])/2.0*size
               centre=(x,y)
@@ -105,12 +86,15 @@ class Hanxin(inkex.Effect):
               grp_name = 'Hanxin'
               grp_attribs = {inkex.addNS('label','inkscape'):grp_name,
                              'transform':grp_transform }
-              grp = inkex.etree.SubElement(self.current_layer, 'g', grp_attribs)#the group to put everything in
+              grp = etree.SubElement(self.svg.get_current_layer(), 'g', grp_attribs)#the group to put everything in
               
-              render_code( m, size, 0,0,grp )    # generate the SVG elements
+              qrDraw = GridDrawer(size, 1,False, self.options.smoothval, self.options.symbolid, 4)
+              qrDraw.setGrid(m)
+              qrDraw.makeSVG(grp,self.options.drawtype)
+              #render_code( m, size, 0,0,grp )    # generate the SVG elements
             
 if __name__ == '__main__':
     e = Hanxin()
-    e.affect()
+    e.run()
 
 # vim: expandtab shiftwidth=4 tabstop=8 softtabstop=4 encoding=utf-8 textwidth=99

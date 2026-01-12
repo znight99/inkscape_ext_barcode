@@ -22,49 +22,63 @@ Barcode module provided for outside or scripting.
 """
 
 import inkex
+from lxml import etree
 import sys
-from Barcode import getBarcode
+from barcode import getBarcode
 
 class InsertBarcode(inkex.Effect):
     def __init__(self):
         inkex.Effect.__init__(self)
-        self.OptionParser.add_option("-l", "--height",
-                        action="store", type="int",
+        self.arg_parser.add_argument("-l", "--height",
+                        type=int,
                         dest="height", default=30,
                         help="Barcode Height")
-        self.OptionParser.add_option("-t", "--type",
-                        action="store", type="string",
+        self.arg_parser.add_argument("-t", "--type",
+                        type=str,
                         dest="type", default='',
                         help="Barcode Type")
-        self.OptionParser.add_option("-d", "--text",
-                        action="store", type="string",
+        self.arg_parser.add_argument("-d", "--text",
+                        type=str,
                         dest="text", default='',
                         help="Text to print on barcode")
-        self.OptionParser.add_option("-a", "--addon",
-                        action="store", type="string",
+        self.arg_parser.add_argument("-a", "--addon",
+                        type=str,
                         dest="addon", default='',
                         help="Addon barcode(2 or 5 digits)")
-        self.OptionParser.add_option("-q", "--quietmark",
-                        action="store", type="inkbool",
+        self.arg_parser.add_argument("-q", "--quietmark",
+                        type=inkex.Boolean,
                         dest="quietmark", default=False,
                         help="Display quiet mark")
 
 
     def effect(self):
-        x, y = self.view_center
+
+        so=self.options
+        
+        so.encoding='utf-8'
+        # Python 2 and 3 compatibility.
+        if sys.version_info >= (3, 0, 0):
+            # for Python 3 ugly hack to represent bytes as str for Python2 compatibility
+            text_str = str(so.text)
+            text_bytes = bytes(so.text, so.encoding).decode("latin-1")
+        else:
+            text_str = str(so.text).decode(sys.getfilesystemencoding())
+            text_bytes = text_str.encode(so.encoding)
+
+        x, y = self.svg.namedview.center
         bargen = getBarcode( self.options.type,
-            text=self.options.text,
+            text=text_bytes,
             height=self.options.height,
             document=self.document,
             x=0, y=0,
-            scale=self.unittouu('0.33mm'),
+            scale=self.svg.unittouu('0.33mm'),
 			      addon= self.options.addon,
 			      quietmark= self.options.quietmark,
         )
         if bargen is not None:
             barcode,w,h = bargen.generate()
             if barcode is not None:
-                (x,y) = self.view_center   #Put in in the centre of the current view
+                (x,y) = self.svg.namedview.center   #Put in in the centre of the current view
                 y-=h/2.0
                 x-=w/2.0
                 centre=(x,y)
@@ -72,7 +86,8 @@ class InsertBarcode(inkex.Effect):
                 grp_name = 'Barcode'
                 grp_attribs = {inkex.addNS('label','inkscape'):grp_name,
                                'transform':grp_transform }
-                grp = inkex.etree.SubElement(self.current_layer, 'g', grp_attribs)#the group to put everything in
+                grp = etree.SubElement(self.svg.get_current_layer(), 'g', grp_attribs)#the group to put everything in
+                grp.set('inkscape:label', 'Barcode '+self.options.type+': ' + text_str)
                 if not isinstance(barcode,list):
                   barcode=[barcode]
                 for bc in barcode:
@@ -87,7 +102,7 @@ def test_barcode():
     if bargen is not None:
         barcode,w,h = bargen.generate()
     if barcode:
-        print inkex.etree.tostring(barcode, pretty_print=True)
+        print (tree.tostring(barcode, pretty_print=True))
 
 
 if __name__ == '__main__':
@@ -96,5 +111,5 @@ if __name__ == '__main__':
         test_barcode()
         exit(0)
     e = InsertBarcode()
-    e.affect()
+    e.run()
 

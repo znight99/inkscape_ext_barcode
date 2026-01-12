@@ -6,10 +6,11 @@ from metzli and zxing
 
 '''
 
-import inkex, simplestyle
-
+import inkex
+from lxml import etree
 import aztec
 import aztec.Encoder
+from barcode.GridDrawer import GridDrawer
 
 import codecs
 import sys
@@ -24,70 +25,50 @@ _ = gettext.gettext
 #=====================================================================
 
 #SVG element generation routine
-def draw_SVG_square((w,h), (x,y), c,parent):
-    cc=['white','black','grey']
-    style = {   'stroke'        : 'none',
-                'stroke-width'  : '0',
-                'fill'          : cc[c],
-                'fill-opacity': str(0.5 if c==2 else 1.0)
-            }
-                
-    attribs = {
-        'style'     :simplestyle.formatStyle(style),
-        'height'    : str(h),
-        'width'     : str(w),
-        'x'         : str(x),
-        'y'         : str(y)
-            }
-    circ = inkex.etree.SubElement(parent, inkex.addNS('rect','svg'), attribs )
-    
-#turn a 2D array of 1's and 0's into a set of black squares
-def render_code( q, size, cx,cy,parent):
-                 
-     for y in range(len(q)):    
-       for x in range(len(q[y])):
-           if q[y][x]==None:
-             draw_SVG_square((size*1.1,size*1.1), (x*size+cx ,y*size+cy), 2,parent)
-           elif q[y][x]: #A binary 1 is a filled square
-             draw_SVG_square((size*1.1,size*1.1), (x*size+cx ,y*size+cy), 1,parent)
     
 class Aztec(inkex.Effect):
     def __init__(self):
         inkex.Effect.__init__(self)
         
+    def add_arguments(self, pars):
         #PARSE OPTIONS
-        self.OptionParser.add_option("--text",
-            action="store", type="string",
-            dest="TEXT", default='Inkscape')
-
-        self.OptionParser.add_option("--ECC",
-            action="store", type="int",
-            dest="ECC", default='33')
- 
-        self.OptionParser.add_option("--size",
-            action="store", type="int",
-            dest="SIZE", default=1)
-            
+        pars.add_argument("--text", default="Inkscape")
+        pars.add_argument("--ECC", type=int,default="33")
+        pars.add_argument("--encoding", default="utf-8")
+        pars.add_argument("--size", type=float,default=1)
+        pars.add_argument("--drawtype", default="greedy")
+        pars.add_argument("--smoothval", type=float, default=0.2)
+        pars.add_argument("--invert", type=inkex.Boolean, default="false")
+        pars.add_argument("--symbolid", default='')
+           
     def effect(self):
         
         so = self.options
         
-        if so.TEXT == '':  #abort if converting blank text
+        if so.text == '':  #abort if converting blank text
             inkex.errormsg(_('Please enter an input string'))
         else:
+            # Python 2 and 3 compatibility.
+            if sys.version_info >= (3, 0, 0):
+                # for Python 3 ugly hack to represent bytes as str for Python2 compatibility
+                text_str = str(so.text)
+                text_bytes = bytes(so.text, so.encoding).decode("latin-1")
+            else:
+                text_str = str(so.text).decode(sys.getfilesystemencoding())
+                text_bytes = text_str.encode(so.encoding)
         
             #INKSCAPE GROUP TO CONTAIN EVERYTHING
             
 
-            #circ = inkex.etree.SubElement(grp, inkex.addNS('text','svg'), {} )
+            #circ = etree.SubElement(grp, inkex.addNS('text','svg'), {} )
             #circ.text=str(so.TEXT)    
-            size=so.SIZE*self.unittouu('1mm')
+            size=so.size*self.svg.unittouu('1mm')
             
             r= aztec.Encoder.Encoder()
-            q=r.encode(unicode(so.TEXT,'mbcs').encode('utf-8') if sys.getfilesystemencoding()=='mbcs' else so.TEXT,so.ECC)
+            q=r.encode(text_bytes,so.ECC)
             
             if q and len(q)>0 and len(q[0])>0:
-              (x,y) = self.view_center   #Put in in the centre of the current view
+              (x,y) = self.svg.namedview.center   #Put in in the centre of the current view
               y-=len(q)/2.0*size
               x-=len(q[0])/2.0*size
               centre=(x,y)            
@@ -95,11 +76,15 @@ class Aztec(inkex.Effect):
               grp_name = 'Aztec'
               grp_attribs = {inkex.addNS('label','inkscape'):grp_name,
                              'transform':grp_transform }
-              grp = inkex.etree.SubElement(self.current_layer, 'g', grp_attribs)#the group to put everything in
-              render_code( q, size, 0,0,grp )    # generate the SVG elements
+              grp = etree.SubElement(self.svg.get_current_layer(), 'g', grp_attribs)#the group to put everything in
+              grp.set('inkscape:label', 'Aztec Code: ' + text_str)
+              qrDraw = GridDrawer(so.size,1, so.invert, so.smoothval, so.symbolid, 4)
+              qrDraw.setGrid(q)
+              qrDraw.makeSVG(grp, so.drawtype)
+              return grp
             
 if __name__ == '__main__':
     e = Aztec()
-    e.affect()
+    e.run()
 
 # vim: expandtab shiftwidth=4 tabstop=8 softtabstop=4 encoding=utf-8 textwidth=99
