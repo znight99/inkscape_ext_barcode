@@ -1,5 +1,6 @@
-from constants import *
-import rs
+from .constants import *
+from . import rs
+import sys
 
 class RSBlock:
 
@@ -17,9 +18,9 @@ def rs_blocks(version, error_correction):
 
     blocks = []
 
-    for i in xrange(0, len(rs_block), 3):
+    for i in range(0, len(rs_block), 3):
         count, total_count, data_count = rs_block[i:i + 3]
-        for j in xrange(count):
+        for j in range(count):
             blocks.append(RSBlock(total_count, data_count))
 
     return blocks
@@ -27,8 +28,8 @@ def rs_blocks(version, error_correction):
 _data_count = lambda block: block.data_count
 BIT_LIMIT_TABLE = [
     [0] + [8*sum(map(_data_count, rs_blocks(version, error_correction)))
-           for version in xrange(1, 85)]
-    for error_correction in xrange(4)
+           for version in range(1, 85)]
+    for error_correction in range(4)
 ]
 
 
@@ -58,10 +59,10 @@ def lost_point(modules):
 
 def _lost_point_level1(modules, n):
   s=0
-  for i in xrange(n):
+  for i in range(n):
     lt=None
     t=0
-    for j in xrange(n):
+    for j in range(n):
       if modules[i][j]==lt:
         t+=1
       else:
@@ -71,10 +72,10 @@ def _lost_point_level1(modules, n):
         s+=16
       if t>4:
         s+=4
-  for i in xrange(n):
+  for i in range(n):
     lt=None
     t=0
-    for j in xrange(n):
+    for j in range(n):
       if modules[j][i]==lt:
         t+=1
       else:
@@ -87,10 +88,10 @@ def _lost_point_level1(modules, n):
   return s  
 
 def _lost_point_level2(modules, modules_count):
-    modules_range_short = xrange(modules_count-6)
+    modules_range_short = range(modules_count-6)
 
     lost_point = 0
-    for row in xrange(modules_count):
+    for row in range(modules_count):
         this_row = modules[row]
         for col in modules_range_short:
             if (this_row[col]
@@ -108,7 +109,7 @@ def _lost_point_level2(modules, modules_count):
                     and this_row[col + 6]):
                 lost_point += 50
 
-    for col in xrange(modules_count):
+    for col in range(modules_count):
         for row in modules_range_short:
             if (modules[row][col]
                     and not modules[row + 1][col]
@@ -133,7 +134,10 @@ def to_bytestring(data):
     already.
     """
     if not isinstance(data, str ):
-        data = unicode(data).encode('utf-8')
+      if sys.version_info >= (3, 0, 0):
+        data =bytes(str(data), 'utf-8').decode('latin-1')
+      else:
+        data =str(data).decode(sys.getfilesystemencoding()).encode('utf-8')
     return data
 
 def is_text(data):
@@ -143,14 +147,42 @@ def is_text(data):
       return False
   return True
 
-def is_chinese1(data):
-    try:
-      data=unicode(data,'utf-8').encode('gb2312')
-    except UnicodeEncodeError:
-      return False
-    except UnicodeDecodeError:
-      return False
+def is_chinese1one(data):
+    if sys.version_info >= (3, 0, 0):
+      data =str(data).encode('latin1').decode('utf-8').encode('gb2312').decode('latin1')
+    else:
+      data =str(data).decode('utf-8').encode('gb2312')
+    i=0
+    while i<len(data):
+      c=ord(data[i])
+      if c>=0x81 and c<=0xfe:
+        c2=ord(data[i+1]) if i+1<len(data) else 0
+        if c2>=0x30 and c2<=0x39:
+          i+=4
+          return False
+        else:
+          if c>=0xb0 and c<=0xd7 and c2>=0xa1 and c2<=0xfe:
+              pass
+          elif c>=0xa1 and c<=0xa3 and c2>=0xa1 and c2<=0xfe:
+              pass
+          elif c==0xa8 and c2>=0xa1 and c2<=0xc0:
+              pass
+          elif c>=0xd8 and c<=0xf7 and c2>=0xa1 and c2<=0xfe:
+              return False
+          else:
+            return False
+          i+=2
+          return True
+      else:
+        i+=1
+        return False
+    return True
 
+def is_chinese1(data):
+    if sys.version_info >= (3, 0, 0):
+      data =str(data).encode('latin1').decode('utf-8').encode('gb2312').decode('latin1')
+    else:
+      data =str(data).decode('utf-8').encode('gb2312')
     i=0
     while i<len(data):
       c=ord(data[i])
@@ -177,12 +209,10 @@ def is_chinese1(data):
     return True
 
 def is_chinese1or2(data):
-    try:
-      data=unicode(data,'utf-8').encode('gb2312')
-    except UnicodeEncodeError:
-      return False
-    except UnicodeDecodeError:
-      return False
+    if sys.version_info >= (3, 0, 0):
+      data =str(data).encode('latin1').decode('utf-8').encode('gb2312').decode('latin1')
+    else:
+      data =str(data).decode('utf-8').encode('gb2312')
 
     i=0
     while i<len(data):
@@ -210,12 +240,10 @@ def is_chinese1or2(data):
     return True
 
 def is_gb18030_2(data):
-    try:
-      data=unicode(data,'utf-8').encode('gb18030')
-    except UnicodeEncodeError:
-      return False
-    except UnicodeDecodeError:
-      return False
+    if sys.version_info >= (3, 0, 0):
+      data =str(data).encode('latin1').decode('utf-8').encode('gb18030').decode('latin1')
+    else:
+      data =str(data).decode('utf-8').encode('gb18030')
 
     i=0
     while i<len(data):
@@ -239,12 +267,10 @@ def is_gb18030_2(data):
     return True
 
 def is_gb18030_4(data):
-    try:
-      data=unicode(data,'utf-8').encode('gb18030')
-    except UnicodeEncodeError:
-      return False
-    except UnicodeDecodeError:
-      return False
+    if sys.version_info >= (3, 0, 0):
+      data =str(data).encode('latin1').decode('utf-8').encode('gb18030').decode('latin1')
+    else:
+      data =str(data).decode('utf-8').encode('gb18030')
 
     i=0
     while i<len(data):
@@ -276,8 +302,7 @@ def optimal_mode(data):
     elif is_text(data):
         return MODE_TEXT
     #elif is_chinese1or2(data):
-    #    s=unicode(data,'utf-8')
-    #    if is_chinese1(s[0:1].encode('utf-8')):
+    #    if is_chinese1one(data):
     #      return MODE_CHINESE_1
     #    return MODE_CHINESE_2
     #elif is_gb18030_2(data):
@@ -312,7 +337,7 @@ class HXData:
 
     def write(self, buffer):
         if self.mode == MODE_NUMBER:
-            for i in xrange(0, len(self.data), 3):
+            for i in range(0, len(self.data), 3):
                 chars = self.data[i:i + 3]
                 buffer.put(int(chars), 10)
             tn=[ 0x3ff,0x3fe,0x3fd ]
@@ -353,7 +378,10 @@ class HXData:
               buffer.put(b,6)
             buffer.put(0x3f,6)
         elif self.mode == MODE_CHINESE_1 or self.mode==MODE_CHINESE_2: # input are encoded in gb2312/gb18030
-            data=unicode(self.data,'utf-8').encode('gb2312')
+            if sys.version_info >= (3, 0, 0):
+              data =str(self.data).encode('latin1').decode('utf-8').encode('gb18030').decode('latin1')
+            else:
+              data =str(self.data).decode('utf-8').encode('gb18030')
             i=0
             st=(self.mode==MODE_CHINESE_1)
             while i<len(data):
@@ -385,7 +413,10 @@ class HXData:
                 i+=1
             buffer.put(0xfff,12)
         elif self.mode == MODE_GB18030_2: # input are gb18030
-            data=unicode(self.data,'utf-8').encode('gb18030')
+            if sys.version_info >= (3, 0, 0):
+              data =str(self.data).encode('latin1').decode('utf-8').encode('gb18030').decode('latin1')
+            else:
+              data =str(self.data).decode('utf-8').encode('gb18030')
             i=0
             while i<len(data):
               c=ord(data[i])
@@ -403,7 +434,10 @@ class HXData:
                 i+=1
             buffer.put(0x7fff,15)
         elif self.mode == MODE_GB18030_4: # one gb18030 char
-            data=unicode(self.data,'utf-8').encode('gb18030')
+            if sys.version_info >= (3, 0, 0):
+              data =str(self.data).encode('latin1').decode('utf-8').encode('gb18030').decode('latin1')
+            else:
+              data =str(self.data).decode('utf-8').encode('gb18030')
             i=0
             if i<len(data):
               c=ord(data[i])
@@ -448,11 +482,11 @@ class BitBuffer:
         return ".".join([str(n) for n in self.buffer])
 
     def get(self, index):
-        buf_index = math.floor(index / 8)
+        buf_index = index // 8
         return ((self.buffer[buf_index] >> (7 - index % 8)) & 1) == 1
 
     def put(self, num, length):
-        for i in xrange(length):
+        for i in range(length):
             self.put_bit(((num >> (length - i - 1)) & 1) == 1)
 
     def __len__(self):
@@ -473,14 +507,14 @@ def create_bytes(buffer, rs_blocks):
     
     rsm=rs.RS(8,0x63,1)
 
-    for r in xrange(len(rs_blocks)):
+    for r in range(len(rs_blocks)):
      
         dcCount = rs_blocks[r].data_count
         ecCount = rs_blocks[r].total_count - dcCount
 
         dcdata = [0] * dcCount
 
-        for i in xrange(len(dcdata)):
+        for i in range(len(dcdata)):
             dcdata[i] = 0xff & buffer.buffer[i + offset]
         offset += dcCount
         
@@ -512,12 +546,12 @@ def create_data(version, error_correction, buffer):
     # Delimit the string into 8-bit words, padding with 0s if necessary.
     delimit = len(buffer) % 8
     if delimit:
-        for i in xrange(8 - delimit):
+        for i in range(8 - delimit):
             buffer.put_bit(False)
 
     # Add special alternating padding bitstrings until buffer is full.
     bytes_to_fill = (bit_limit - len(buffer)) // 8
-    for i in xrange(bytes_to_fill):
+    for i in range(bytes_to_fill):
       buffer.put(PAD0, 8)
 
     return create_bytes(buffer, rbs)

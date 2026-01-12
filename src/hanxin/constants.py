@@ -581,20 +581,20 @@ if __name__ == '__main__':
         if j==2 and (float(c)/b<0.45 or float(c)/b>0.60):
           print 'Warning',i+1,j,float(c)/b
         if j==3 and (float(c)/b<0.35 or float(c)/b>0.45):
-          print 'Warning',i+1,j,float(c)/b
+          print ('Warning',i+1,j,float(c)/b)
         '''
         tt+=(b-c)*a
         if (b-c)%2!=0:
-          print 'Error',i,j,tl
+          print ('Error',i,j,tl)
         tl+=a*b
       if j==0 and (float(tt)/tl<0.15 or float(tt)/tl>0.18):
-          print 'Warning',i+1,j,tl,tt,float(tt)/tl
+          print ('Warning',i+1,j,tl,tt,float(tt)/tl)
       if j==1 and (float(tt)/tl<0.28 or float(tt)/tl>0.32):
-          print 'Warning',i+1,j,tl,tt,float(tt)/tl
+          print ('Warning',i+1,j,tl,tt,float(tt)/tl)
       if j==2 and (float(tt)/tl<0.44 or float(tt)/tl>0.47):
-          print 'Warning',i+1,j,tl,tt,float(tt)/tl
+          print ('Warning',i+1,j,tl,tt,float(tt)/tl)
       if j==3 and (float(tt)/tl<0.58 or float(tt)/tl>0.62):
-          print 'Warning',i+1,j,tl,tt,float(tt)/tl
+          print ('Warning',i+1,j,tl,tt,float(tt)/tl)
       if tl!=DATA_LEN[i+1]:
-        print 'Error',i,j,tl
+        print ('Error',i,j,tl)
         

@@ -14,7 +14,7 @@ class Polynomial:
             offset += 1
 
         self.num = [0] * (len(num) - offset + shift)
-        for i in xrange(len(num) - offset):
+        for i in range(len(num) - offset):
             self.num[i] = num[i + offset]
 
     def __getitem__(self, index):
@@ -107,5 +107,5 @@ if __name__ == '__main__':
   rs=RS(4,0x3,1)
   dc=[1,6,3]
   ec=rs.encode(dc,3,4)
-  print str(ec)
+  print (str(ec))
   

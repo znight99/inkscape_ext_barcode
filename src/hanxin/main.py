@@ -1,5 +1,5 @@
-import util,constants
-import rs
+from . import util,constants
+from . import rs
 from bisect import bisect_left
 
 def make(data=None, **kwargs):
@@ -60,11 +60,11 @@ class Hanxin:
         n=self.modules_count = self.version * 2 + 21
         self.modules = [None] * self.modules_count
 
-        for row in xrange(self.modules_count):
+        for row in range(self.modules_count):
 
             self.modules[row] = [None] * self.modules_count
 
-            for col in xrange(self.modules_count):
+            for col in range(self.modules_count):
               if (row<9 and (col<9 or col>n-10)) or row>n-10 and (col<9 or col>n-10):
                 self.modules[row][col] = False   # (col + row) % 3
               else:
@@ -94,7 +94,7 @@ class Hanxin:
       dcdata=dcdata+ecdata
       dcdata+=[0xa,0xa]
       n=self.modules_count
-      for i in xrange(34):
+      for i in range(34):
         if i<9:
           x=i
           y=8
@@ -133,12 +133,12 @@ class Hanxin:
         m=(n-r)//k
       else:
         m=1
-      for t in xrange(m+2):
+      for t in range(m+2):
         if t==0:
           stx=0
         else:
           stx=n-1-(m+1-t)*k
-        for s in xrange(m+1):
+        for s in range(m+1):
           if (s+t)%2==(0 if m%2==1 else 1):
             sty=s*k
             if t==m+1 and s==0:
@@ -147,7 +147,7 @@ class Hanxin:
               ll=n-1-k*m
             else:
               ll=k
-            for w in xrange(ll+1):
+            for w in range(ll+1):
               if not ((stx==0 or stx==n-1) and (sty<=8 or sty>=n-9)):
                 self.modules[sty][stx]=True
                 if stx>0 and sty+1<n and (stx<n-1 or w<ll) and not ((stx==0 or stx==n-1) and (sty<=9 or sty>=n-10)):
@@ -165,12 +165,12 @@ class Hanxin:
               self.modules[sty-2][stx]=False
               self.modules[sty-2][stx-1]=False
               self.modules[sty-1][stx-1]=False
-      for t in xrange(m+2):
+      for t in range(m+2):
         if t==m+1:
           sty=n-1
         else:
           sty=t*k
-        for s in xrange(m+1):
+        for s in range(m+1):
           if (s+t)%2==(1 if m%2==1 else 0):
             if s==0:
               stx=0
@@ -182,7 +182,7 @@ class Hanxin:
               ll=n-1-k*m
             else:
               ll=k
-            for w in xrange(ll+1):
+            for w in range(ll+1):
               if not ((sty==0 or sty==n-1) and (stx<=8 or stx>=n-9)):
                 self.modules[sty][stx]=True
                 if sty<n-1 and w!=ll:
@@ -237,7 +237,7 @@ class Hanxin:
         min_lost_point = 0
         pattern = 0
 
-        for i in xrange(4):
+        for i in range(4):
             self.makeImpl(True, i)
 
             lost_point = util.lost_point(self.modules)
@@ -258,13 +258,13 @@ class Hanxin:
         
         x=y=0
         t=(data_len-1)//13+1
-        for i in xrange(13):
-          for j in xrange(t):
+        for i in range(13):
+          for j in range(t):
             if j*13+i<data_len:
               c=data[j*13+i]
             else:
               continue
-            for k in xrange(8):
+            for k in range(8):
               while x<n and y<n and self.modules[y][x]!=None:
                 x+=1
                 if x>=n:
