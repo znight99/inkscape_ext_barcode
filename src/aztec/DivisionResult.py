@@ -14,7 +14,7 @@
  * limitations under the License.
 '''
 
-import GenericGFPoly
+from . import GenericGFPoly
 
 class DivisionResult:
     #private quotient;

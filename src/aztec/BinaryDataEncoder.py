@@ -14,7 +14,7 @@
  * limitations under the License.
 '''
 
-import BitArray
+from . import BitArray
 
 CODE_UPPER_BS = 31;
 

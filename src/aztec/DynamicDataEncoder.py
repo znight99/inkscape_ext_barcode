@@ -14,8 +14,8 @@
  * limitations under the License.
 '''
 
-import State
-import Token
+from . import State
+from . import Token
 
 MODE_UPPER = 0;
 MODE_LOWER = 1;

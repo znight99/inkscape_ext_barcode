@@ -14,11 +14,11 @@
  * limitations under the License.
 '''
 
-import DynamicDataEncoder
-import BinaryDataEncoder
-import GenericGF
-import ReedSolomonEncoder
-import BitArray
+from . import DynamicDataEncoder
+from . import BinaryDataEncoder
+from . import GenericGF
+from . import ReedSolomonEncoder
+from . import BitArray
 
 class Encoder:
     DEFAULT_EC_PERCENT = 33;
@@ -41,7 +41,7 @@ class Encoder:
     @staticmethod
     def bitsToWords(stuffedBits, wordSize, totalWords):
         message = [0]*totalWords
-        n = int(stuffedBits.getLength() / wordSize);
+        n = int(stuffedBits.getLength() // wordSize);
         for i in range( 0, n) :
             value = 0;
             for j in range( 0,wordSize) :
@@ -102,10 +102,10 @@ class Encoder:
 
     @staticmethod
     def generateCheckWords(stuffedBits, totalSymbolBits, wordSize):
-        messageSizeInWords = int((stuffedBits.getLength() + wordSize - 1) / wordSize);
+        messageSizeInWords = int((stuffedBits.getLength() + wordSize - 1) // wordSize);
         for i in range( messageSizeInWords * wordSize - stuffedBits.getLength(), 0,-1) :
             stuffedBits.append(1);
-        totalSizeInFullWords = int(totalSymbolBits / wordSize);
+        totalSizeInFullWords = int(totalSymbolBits // wordSize);
         messageWords = Encoder.bitsToWords(stuffedBits, wordSize, totalSizeInFullWords);
 
         rs = ReedSolomonEncoder.ReedSolomonEncoder(Encoder.getGF(wordSize));
@@ -156,7 +156,7 @@ class Encoder:
 
     @staticmethod
     def drawModeMessage(matrix, compact, matrixSize, modeMessage):
-        center = int(matrixSize / 2);
+        center = int(matrixSize // 2);
         if (compact) :
             for i in range( 0, 7) :
                 if (modeMessage.get(i)) :
@@ -170,13 +170,13 @@ class Encoder:
         else :
             for i in range( 0, 10) :
                 if (modeMessage.get(i)) :
-                    matrix[center - 5 + i+int(i/5)][center - 7]=1;
+                    matrix[center - 5 + i+int(i//5)][center - 7]=1;
                 if (modeMessage.get(i + 10)) :
-                    matrix[center + 7][center - 5 + i +int(i/5)]=1;
+                    matrix[center + 7][center - 5 + i +int(i//5)]=1;
                 if (modeMessage.get(29 - i)):
-                    matrix[center - 5 + i+int(i/5)][center + 7]=1;
+                    matrix[center - 5 + i+int(i//5)][center + 7]=1;
                 if (modeMessage.get(39 - i)) :
-                    matrix[center - 7][center - 5 + i+int(i/5)]=1;
+                    matrix[center - 7][center - 5 + i+int(i//5)]=1;
 
         return matrix;
     
@@ -191,7 +191,7 @@ class Encoder:
         #dataEncoder = BinaryDataEncoder.BinaryDataEncoder();
         bits = dataEncoder.encode(content);
 
-        eccBits = int(bits.getLength() * eccPercent / 100 + 11);
+        eccBits = int(bits.getLength() * eccPercent // 100 + 11);
         totalSizeBits = bits.getLength() + eccBits;
 
         layers = 0;
@@ -225,14 +225,14 @@ class Encoder:
             return None
             
 
-        messageSizeInWords = int((stuffedBits.getLength() + wordSize - 1) / wordSize);
+        messageSizeInWords = int((stuffedBits.getLength() + wordSize - 1) // wordSize);
         for i in range( messageSizeInWords * wordSize -stuffedBits.getLength(),0,-1 ) :
             stuffedBits.append(1)
 
         #// generate check words
         rs = ReedSolomonEncoder.ReedSolomonEncoder(self.getGF(wordSize));
         
-        totalSizeInFullWords = int(totalSymbolBits / wordSize);
+        totalSizeInFullWords = int(totalSymbolBits // wordSize);
         messageWords = self.bitsToWords(stuffedBits, wordSize, totalSizeInFullWords);
         messageWords = rs.encodePadded(messageWords, totalSizeInFullWords - messageSizeInWords);
 
@@ -254,12 +254,12 @@ class Encoder:
             alignmentMap = [i for i in range(0,matrixSize)];
         else :
             baseMatrixSize = 14 + layers * 4;
-            matrixSize = baseMatrixSize + 1 + 2 * int((int(baseMatrixSize / 2) - 1) / 15);
+            matrixSize = baseMatrixSize + 1 + 2 * int((int(baseMatrixSize // 2) - 1) // 15);
             alignmentMap = [0]* baseMatrixSize;
-            origCenter = int(baseMatrixSize / 2);
-            center = int(matrixSize / 2);
+            origCenter = int(baseMatrixSize // 2);
+            center = int(matrixSize // 2);
             for i in range( 0, origCenter) :
-                newOffset = i + int(i / 15);
+                newOffset = i + int(i // 15);
                 alignmentMap[origCenter - i - 1] = center - newOffset - 1;
                 alignmentMap[origCenter + i] = center + newOffset + 1;
 
@@ -291,16 +291,16 @@ class Encoder:
         #// draw alignment marks
         
         if (compact) :
-            matrix = self.drawBullsEye(matrix, int(matrixSize / 2), 5);
+            matrix = self.drawBullsEye(matrix, int(matrixSize // 2), 5);
         else:
-            matrix = self.drawBullsEye(matrix, int(matrixSize / 2), 7);
+            matrix = self.drawBullsEye(matrix, int(matrixSize // 2), 7);
             j=0
-            for i in range( 0,  int(baseMatrixSize / 2) - 1, 15) :
-                for k in range( int(matrixSize / 2) & 1, matrixSize,2) :
-                    matrix[int(matrixSize / 2) - j][k]=1;
-                    matrix[int(matrixSize / 2) + j][k]=1;
-                    matrix[k][ int(matrixSize / 2) - j]=1;
-                    matrix[k][ int(matrixSize / 2) + j]=1;
+            for i in range( 0,  int(baseMatrixSize // 2) - 1, 15) :
+                for k in range( int(matrixSize // 2) & 1, matrixSize,2) :
+                    matrix[int(matrixSize // 2) - j][k]=1;
+                    matrix[int(matrixSize // 2) + j][k]=1;
+                    matrix[k][ int(matrixSize // 2) - j]=1;
+                    matrix[k][ int(matrixSize // 2) + j]=1;
                 j+=16
 
         return matrix;

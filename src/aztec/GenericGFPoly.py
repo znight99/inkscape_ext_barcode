@@ -14,8 +14,8 @@
  * limitations under the License.
 '''
 
-import GenericGF
-import DivisionResult
+from .import GenericGF
+from . import DivisionResult
 
 class GenericGFPoly:
     #private $field;

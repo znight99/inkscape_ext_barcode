@@ -14,7 +14,7 @@
  * limitations under the License.
 '''
 
-import BinaryDataEncoder
+from . import BinaryDataEncoder
 
 class StringDataEncoder (BinaryDataEncoder.BinaryDataEncoder):
     def encode(self,data):

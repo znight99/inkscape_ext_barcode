@@ -14,7 +14,7 @@
  * limitations under the License.
 '''
 
-import GenericGFPoly
+from . import GenericGFPoly
 
 class ReedSolomonEncoder:
     #private $field;

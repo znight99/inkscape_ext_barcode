@@ -14,7 +14,7 @@
  * limitations under the License.
 '''
 
-import GenericGFPoly
+from . import GenericGFPoly
 
 AZTEC_DATA_12 = 1; #// x^12 + x^6 + x^5 + x^3 + 1
 AZTEC_DATA_10 = 2; #// x^10 + x^3 + 1

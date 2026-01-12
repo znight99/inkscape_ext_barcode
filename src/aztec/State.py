@@ -14,9 +14,9 @@
  * limitations under the License.
 '''
 
-import Token
-import DynamicDataEncoder
-import BitArray
+from . import Token
+from . import DynamicDataEncoder
+from . import BitArray
 
 class State:
     #private $mode;
