@@ -1,5 +1,5 @@
-from constants import *
-import rs
+from .constants import *
+from . import rs
 
 CONTROL_CODE='!"#$%&,()*+,-./:;<=>?@[\\]^_`{|}~'
 
@@ -19,7 +19,10 @@ def to_bytestring(data):
     already.
     """
     if not isinstance(data, str ):
-        data = unicode(data).encode('utf-8')
+      if sys.version_info >= (3, 0, 0):
+        data =bytes(str(data), 'utf-8').decode('latin-1')
+      else:
+        data =str(data).decode(sys.getfilesystemencoding()).encode('utf-8')
     return data
 
 def is_number(data):
@@ -117,7 +120,10 @@ def control_count(data):
 
 def optimal_data_chunks(mdata):
   try:
-    data=unicode(mdata,'utf-8').encode('gb18030')
+    if sys.version_info >= (3, 0, 0):
+      data =str(data).encode('latin1').decode('utf-8').encode('gb18030').decode('latin1')
+    else:
+      data =str(data).decode('utf-8').encode('gb18030')
   except UnicodeEncodeError:
     return [GMData(mdata)]
   except UnicodeDecodeError:
@@ -191,7 +197,11 @@ def optimal_data_chunks(mdata):
   r=[]
   for i in range(ll):
     if i+1>=ll or ms[i+1]!=lm:
-      ch=data[lp:i+1].decode('gb18030').encode('utf-8')
+      ch=data[lp:i+1]
+      if sys.version_info >= (3, 0, 0):
+        ch =str(ch).encode('latin1').decode('gb18030').encode('utf-8').decode('latin1')
+      else:
+        ch =str(ch).decode('gb18030').encode('utf-8')
       r.append(GMData(ch,lm))
       if i+1<ll:
         lm=ms[i+1]
@@ -237,7 +247,10 @@ class GMData:
 
     def write(self, buffer):
         if self.mode==MODE_CHINESE:
-          data=unicode(self.data,'utf-8').encode('gb18030')
+          if sys.version_info >= (3, 0, 0):
+            data =str(self.data).encode('latin1').decode('utf-8').encode('gb18030').decode('latin1')
+          else:
+            data =str(self.data).decode('utf-8').encode('gb18030')
           i=0
           ll=len(data)
           while i<ll:
@@ -397,7 +410,7 @@ class BitBuffer:
         return ((self.buffer[buf_index] >> (6 - index % 7)) & 1) == 1
 
     def put(self, num, length):
-        for i in xrange(length):
+        for i in range(length):
             self.put_bit(((num >> (length - i - 1)) & 1) == 1)
 
     def __len__(self):
@@ -421,14 +434,14 @@ def create_bytes(num, buffer, rs_blocks):
     lb=len(rs_blocks)
     dcdata=[None]*lb
     ml=-1
-    for r in xrange(lb):
+    for r in range(lb):
      
         dcCount = rs_blocks[r].data_count
         ecCount = rs_blocks[r].total_count - dcCount
 
         dcdata[r] = [0] * dcCount
 
-        for i in xrange(dcCount):
+        for i in range(dcCount):
             dcdata[r][i] = 0x7f & buffer.buffer[i + offset]
         offset += dcCount
         
@@ -474,7 +487,7 @@ def shift_to_mode(buffer,last,now):
 
 def generate_data(buffer,  data_list):
     lastmode=None
-    for i in xrange(len(data_list)):
+    for i in range(len(data_list)):
         data=data_list[i]
         if not data.mode is None and len(data.data)>0:
           shift_to_mode(buffer,lastmode,data.mode)
@@ -503,11 +516,11 @@ def create_data(version, error_correction, buffer):
     # Delimit the string into 8-bit words, padding with 0s if necessary.
     delimit = len(buffer) % 7
     if delimit:
-        for i in xrange(7 - delimit):
+        for i in range(7 - delimit):
             buffer.put_bit(False)
 
     # Add special alternating padding bitstrings until buffer is full.
-    for i in xrange(p):
+    for i in range(p):
       if (i+d)%2==0 or i==0 and d%2==1:
         buffer.put(PAD0, 7)
       else:
@@ -536,7 +549,7 @@ def create_data(version, error_correction, buffer):
       b3=e-b*e2
       b4=b-b3
     rbs=[]
-    for i in xrange(b):
+    for i in range(b):
       if i<b1:
         m=n1
       else:

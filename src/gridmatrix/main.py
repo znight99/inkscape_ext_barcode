@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import util
-from constants import *
-import rs
+from . import util
+from .constants import *
+from . import rs
 from bisect import bisect_left
 
 def make(data=None, **kwargs):
@@ -69,11 +69,11 @@ class GridMatrix:
         n=self.modules_count = self.block_count*6
         self.modules = [None] * self.modules_count
 
-        for row in xrange(self.modules_count):
+        for row in range(self.modules_count):
 
             self.modules[row] = [None] * self.modules_count
 
-            for col in xrange(self.modules_count):
+            for col in range(self.modules_count):
               if col%6==0 or col%6==5 or row%6==0 or row%6==5:
                 if (row//6+col//6)%2==0:
                   self.modules[row][col] = True   # (col + row) % 3
@@ -83,8 +83,8 @@ class GridMatrix:
                 self.modules[row][col] = None   # (col + row) % 3
         
         ct=self.version
-        for row in xrange(self.block_count):
-          for col in xrange(self.block_count):
+        for row in range(self.block_count):
+          for col in range(self.block_count):
             lm=(5+max(abs(row-ct),abs(col-ct))-self.error_correction)%4
             if self.error_correction==1:
               lm=3-lm
@@ -136,8 +136,8 @@ class GridMatrix:
         j=0
         while True:
           
-          for t in xrange(i//2+1):
-            for k in xrange(14):
+          for t in range(i//2+1):
+            for k in range(14):
                 self.modules[by*6+(k+2)//4+1][bx*6+(k+2)%4+1]=(data[j+(1-k//7)]&(1<<(6-k%7)))!=0
             j+=2
             bx+=[0,1,0,-1][i%4]

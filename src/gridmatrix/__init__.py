@@ -1,4 +1,4 @@
-from gridmatrix.main import GridMatrix, make
+from .main import GridMatrix, make
 
 def run_example(data="http://www.imu.edu.cn", *args, **kwargs):
     """
